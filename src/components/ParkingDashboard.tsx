@@ -21,7 +21,7 @@ export const ParkingDashboard = ({ refreshTrigger }: ParkingDashboardProps) => {
   const [entries, setEntries] = useState<ParkingEntry[]>([]);
   const { toast } = useToast();
 
-  const hourlyRate = 5; // $5 per hour
+  const ratePerHalfHour = 0.50; // $0.50 per 30 minutes
 
   useEffect(() => {
     loadEntries();
@@ -35,8 +35,9 @@ export const ParkingDashboard = ({ refreshTrigger }: ParkingDashboardProps) => {
   const calculatePayment = (entryTime: string, exitTime: string) => {
     const entry = new Date(entryTime);
     const exit = new Date(exitTime);
-    const hours = Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60 * 60));
-    return Math.max(hours * hourlyRate, hourlyRate); // Minimum 1 hour charge
+    const minutes = Math.ceil((exit.getTime() - entry.getTime()) / (1000 * 60));
+    const halfHourBlocks = Math.ceil(minutes / 30); // Round up to next 30-minute block
+    return Math.max(halfHourBlocks * ratePerHalfHour, ratePerHalfHour); // Minimum 30 minutes charge
   };
 
   const calculateCurrentDuration = (entryTime: string) => {
@@ -116,8 +117,8 @@ export const ParkingDashboard = ({ refreshTrigger }: ParkingDashboardProps) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Hourly Rate</p>
-                <p className="text-3xl font-bold text-foreground">${hourlyRate}</p>
+                <p className="text-sm font-medium text-muted-foreground">Rate</p>
+                <p className="text-3xl font-bold text-foreground">${ratePerHalfHour}/30min</p>
               </div>
               <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
                 <Clock className="w-6 h-6 text-accent" />
